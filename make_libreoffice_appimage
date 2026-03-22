@@ -390,8 +390,8 @@ else
 	variant="$language"
 fi
 
-UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|continuous-$pathVersion|*$pathVersion*$variant-$ARCH.AppImage.zsync"
-FILENAME="LibreOffice-$pathVersion-$nrVersion-$variant-$ARCH.AppImage "
+UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|continuous-$pathVersion|*$pathVersion*$variant-x86_64.AppImage.zsync"
+FILENAME="LibreOffice-$pathVersion-$nrVersion-$variant-x86_64.AppImage "
 
 ARCH=x86_64 appimagetool -u "$UPINFO" ./$APP.AppDir/ "$FILENAME"
 
