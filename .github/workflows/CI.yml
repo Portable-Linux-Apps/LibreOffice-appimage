@@ -23,7 +23,7 @@ jobs:
         chmod a+x ./make_libreoffice_appimage
         ./make_libreoffice_appimage fresh x86-64 it N Y Y Y
         mkdir dist
-        mv *AppImage* dist/
+        mv out/*AppImage* dist/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4.4.0
