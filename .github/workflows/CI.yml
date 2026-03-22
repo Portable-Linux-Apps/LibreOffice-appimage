@@ -26,10 +26,14 @@ jobs:
         export PATH="$PWD":"${PATH}"
         
         chmod a+x ./make_libreoffice_appimage
+        architecture="x86-64"
+        languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru standard full"
         for a in still fresh; do
-           mkdir -p "$a" && cp -r make_libreoffice_appimage "$a"/ && cd "$a" || exit 0
-           ./make_libreoffice_appimage "$a" x86-64 standard N Y Y Y
-           cd ..
+           for b in $languages; do
+              mkdir -p "$a" && cp -r make_libreoffice_appimage "$a"/ && cd "$a" || exit 0
+              ./make_libreoffice_appimage "$a" "architecture" "$b" N Y Y Y
+              cd ..
+           done
         done
         mkdir -p dist
         find . -type d -name out
