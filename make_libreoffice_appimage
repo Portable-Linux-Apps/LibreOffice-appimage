@@ -382,33 +382,19 @@ chmod a+x AppRun
 
 cd ..
 
-_appimagetool() {
-	if ! command -v appimagetool 1>/dev/null; then
-		if [ ! -f ./appimagetool ]; then
-			URL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${appimageArch}.AppImage"
-			echo " Downloading appimagetool..."
-			wget -c "$URL" -O appimagetool
-			chmod a+x ./appimagetool
-		fi
-		./appimagetool "$@"
-	else
-		appimagetool "$@"
-	fi
-}
-
 set +x
 
 if [[ $language == "N" ]] ; then
 	if [[ $optHelp != "N" ]] ; then
-		VERSION="$pathVersion"."help" _appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.help.AppImage.zsync" -v ./$APP.AppDir/
+		VERSION="$nrVersion"."help" appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|continuous-$pathVersion|*$argv3*.help-$ARCH.AppImage.zsync" -v ./$APP.AppDir/
 	else
-		VERSION="$pathVersion" _appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.AppImage.zsync" -v ./$APP.AppDir/
+		VERSION="$nrVersion" appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|continuous-$pathVersion|*$argv3*-$ARCH.AppImage.zsync" -v ./$APP.AppDir/
 	fi
 else
 	if [[ $optHelp != "N" ]] ; then
-		VERSION="$pathVersion"."$language"."help" _appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.help.AppImage.zsync" -v ./$APP.AppDir/
+		VERSION="$nrVersion"."$language"."help" appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|continuous-$pathVersion|*$argv3*.help-$ARCH.AppImage.zsync" -v ./$APP.AppDir/
 	else
-		VERSION="$pathVersion"."$language" _appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.AppImage.zsync" -v ./$APP.AppDir/
+		VERSION="$nrVersion"."$language" appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|continuous-$pathVersion|*$argv3*-$ARCH.AppImage.zsync" -v ./$APP.AppDir/
 	fi
 fi
 
