@@ -385,6 +385,7 @@ cd ..
 _appimagetool() {
 	if ! command -v appimagetool 1>/dev/null; then
 		if [ ! -f ./appimagetool ]; then
+			URL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${appimageArch}.AppImage"
 			echo " Downloading appimagetool..."
 			wget -c "$URL" -O appimagetool
 			chmod a+x ./appimagetool
