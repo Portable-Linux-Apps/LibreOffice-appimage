@@ -22,12 +22,12 @@ jobs:
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
         chmod a+x ./make_libreoffice_appimage
         for a in still fresh; do
-           mkdir -p "$a" && cd "$a" || exit 0
-           ../make_libreoffice_appimage fresh x86-64 standard N Y Y Y
+           mkdir -p "$a" && cp -r make_libreoffice_appimage "$a"/ && cd "$a" || exit 0
+           ./make_libreoffice_appimage "$a" x86-64 standard N Y Y Y
            cd ..
         done
         mkdir -p dist
-        mv ./*/*/*/*AppImage* dist/
+        mv ./*/*AppImage* dist/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4.4.0
