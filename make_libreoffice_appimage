@@ -249,11 +249,9 @@ pathVersion=$1
 arch="${2:-x86-64}"
 language="${3:-N}"
 optHelp="${4:-N}"
-optSync="${5:-N}"
 optSignature="${6:-N}"
 optPortable="${7:-Y}"
 
-linkZsync=""
 gpgPass=""
 
 if [[ $language == *"standard"* ]] ; then
@@ -285,77 +283,9 @@ elif [[ $arch == "x86" ]] ; then
 	appimageArch="i686"
 fi
 
-if [[ $pathVersion == *"daily"* ]] ; then
-    APP=LibreOfficeDev
-else
-    APP=LibreOffice
-fi
+APP=LibreOffice
 
-case "$pathVersion" in
-"3.3.0.4")
-  libreVersion="3.3.0"
-  ;;
-"3.3.1.2")
-  libreVersion="3.3.1"
-  ;;
-"3.3.2.2")
-  libreVersion="3.3.2"
-  ;;
-"3.3.3.1")
-  libreVersion="3.3.3"
-  ;;
-"3.3.4.1")
-  libreVersion="3.3.4"
-  ;;
-"3.4.0.1")
-  libreVersion="3.4.0rc1"
-  ;;
-"3.4.1.3")
-  libreVersion="3.4.1"
-  ;;
-"3.4.2.3")
-  libreVersion="3.4.2"
-  ;;
-"3.4.3.2")
-  libreVersion="3.4.3"
-  ;;
-"3.4.4.1")
-  libreVersion="3.4.4rc1"
-  ;;
-"3.4.5.2")
-  libreVersion="3.4.5rc2"
-  ;;
-"3.4.6.2")
-  libreVersion="3.4.6rc2"
-  ;;
-"3.5.0.3")
-  libreVersion="3.5.0rc3"
-  ;;
-"3.5.1.2")
-  libreVersion="3.5.1rc2"
-  ;;
-"3.5.2.2")
-  libreVersion="3.5.2rc2"
-  ;;
-"3.5.3.2")
-  libreVersion="3.5.3rc2"
-  ;;
-"3.5.4.2")
-  libreVersion="3.5.4rc2"
-  ;;
-"3.5.5.3")
-  libreVersion="3.5.5rc3"
-  ;;
-"3.5.6.2")
-  libreVersion="3.5.6rc2"
-  ;;
-"3.5.7.2")
-  libreVersion="3.5.7rc2"
-  ;;
-*)
-  libreVersion=$pathVersion
-  ;;
-esac
+libreVersion=$pathVersion
 
 set +e
 
@@ -505,27 +435,23 @@ chmod a+x AppRun
 
 cd ..
 
-URL="https://github.com/probonopd/AppImageKit/releases/download/continuous/appimagetool-${appimageArch}.AppImage"
+URL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${appimageArch}.AppImage"
 wget -c "$URL" -O appimagetool
 chmod a+x ./appimagetool
 set +x
 
-if [[ $optSync == "N" ]] ; then
-	VERSION=$VERSION ./appimagetool -v ./$APP.AppDir/
+if [[ $language == "N" ]] ; then
+	if [[ $optHelp != "N" ]] ; then
+		VERSION="$pathVersion"."help" ./appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.help.AppImage.zsync" -v ./$APP.AppDir/
+	else
+		VERSION="$pathVersion" ./appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.AppImage.zsync" -v ./$APP.AppDir/
+	fi
 else
-    if [[ $language == "N" ]] ; then
-    	if [[ $optHelp != "N" ]] ; then
-    		VERSION="$pathVersion"."help" ./appimagetool -u "zsync|"$linkZsync$APP"-"$pathVersion".help.AppImage.zsync" -v ./$APP.AppDir/
-        else
-        	VERSION="$pathVersion" ./appimagetool -u "zsync|"$linkZsync$APP"-"$pathVersion".AppImage.zsync" -v ./$APP.AppDir/
-        fi
-    else
-    	if [[ $optHelp != "N" ]] ; then
-        	VERSION="$pathVersion"."$language"."help" ./appimagetool -u "zsync|"$linkZsync$APP"-"$pathVersion"."$language".help.AppImage.zsync" -v ./$APP.AppDir/
-        else
-        	VERSION="$pathVersion"."$language" ./appimagetool -u "zsync|"$linkZsync$APP"-"$pathVersion"."$language".AppImage.zsync" -v ./$APP.AppDir/
-    	fi
-    fi
+	if [[ $optHelp != "N" ]] ; then
+		VERSION="$pathVersion"."$language"."help" ./appimagetool -u "gh-releases-zsync|"$linkZsync$APP"-"$pathVersion"."$language".help.AppImage.zsync" -v ./$APP.AppDir/
+	else
+		VERSION="$pathVersion"."$language" ./appimagetool -u "gh-releases-zsync|"$linkZsync$APP"-"$pathVersion"."$language".AppImage.zsync" -v ./$APP.AppDir/
+	fi
 fi
 
 set -x
