@@ -20,6 +20,11 @@ jobs:
         sudo apt update && sudo apt install desktop-file-utils
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+        URL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+        wget -c "$URL" -O appimagetool
+        export PATH="$PWD":"${PATH}"
+        
         chmod a+x ./make_libreoffice_appimage
         for a in still fresh; do
            mkdir -p "$a" && cp -r make_libreoffice_appimage "$a"/ && cd "$a" || exit 0
