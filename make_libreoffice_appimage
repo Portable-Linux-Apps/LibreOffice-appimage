@@ -226,13 +226,8 @@ else
 	helplanguages=()
 fi
 
-if [[ $arch == *"x86-64"* ]] ; then
-	pathArch="x86_64"
-	appimageArch="x86_64"
-elif [[ $arch == "x86" ]] ; then
-	pathArch="x86"
-	appimageArch="i686"
-fi
+pathArch="x86_64"
+appimageArch="x86_64"
 
 APP=LibreOffice
 
