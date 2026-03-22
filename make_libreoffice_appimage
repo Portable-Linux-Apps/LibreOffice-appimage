@@ -399,9 +399,9 @@ if [[ $language == "N" ]] ; then
 	fi
 else
 	if [[ $optHelp != "N" ]] ; then
-		VERSION="$pathVersion"."$language"."help" ./appimagetool -u "gh-releases-zsync|"$linkZsync$APP"-"$pathVersion"."$language".help.AppImage.zsync" -v ./$APP.AppDir/
+		VERSION="$pathVersion"."$language"."help" ./appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.help.AppImage.zsync" -v ./$APP.AppDir/
 	else
-		VERSION="$pathVersion"."$language" ./appimagetool -u "gh-releases-zsync|"$linkZsync$APP"-"$pathVersion"."$language".AppImage.zsync" -v ./$APP.AppDir/
+		VERSION="$pathVersion"."$language" ./appimagetool -u "gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|$pathVersion|*.AppImage.zsync" -v ./$APP.AppDir/
 	fi
 fi
 
