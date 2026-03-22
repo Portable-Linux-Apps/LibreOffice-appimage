@@ -298,18 +298,18 @@ if [[ $language != "N" ]] ; then
 	if [[ $language == *"standard"* || $language == *"full"* ]] ; then
 		for element in ${languages[*]}; do
 			langPackage="$langStart$element.tar.gz"
-			wget -c "$path$langPackage"
+			[ ! -f "$langPackage" ] && wget -c "$path$langPackage"
 		done
 	else
 		if [[ $pathVersion == "3."* ]] ; then
 			for element in ${languages[*]}; do
 				langPackage="LibO_${nrVersion}_Linux_${arch}_langpack-deb_${element}.tar.gz"
-				wget -c "$path$langPackage"
+				[ ! -f "$langPackage" ] && wget -c "$path$langPackage"
 			done
 		else
 			for element in ${languages[*]}; do
 				langPackage="$langStart${element}.tar.gz"
-				wget -c "$path$langPackage"
+				[ ! -f "$langPackage" ] && wget -c "$path$langPackage"
 			done
 		fi
 	fi
@@ -324,28 +324,28 @@ if [[ $optHelp != "N" ]] ; then
 	if [[ $language == *"standard"* || $language == *"full"* ]] ; then
 		 for element in ${helplanguages[*]}; do
 			helpPackage="$helpStart$element.tar.gz"
-			wget -c "$path$helpPackage"
+			[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
 		 done
 	else
 		if [[ $pathVersion == "3."* ]] ; then
 			if [[ "${#helplanguages[@]}" != "0" ]] ; then
 				for element in ${helplanguages[*]}; do
 					helpPackage="LibO_${nrVersion}_Linux_${arch}_helppack-deb_${element}.tar.gz"
-					wget -c "$path$helpPackage"
+					[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
 				done
 			else
 				helpPackage="LibO_${nrVersion}_Linux_${arch}_helppack-deb_en-US.tar.gz"
-				wget -c "$path$helpPackage"
+				[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
 			fi
 		else
 			if [[ "${#helplanguages[@]}" != "0" ]] ; then
 				for element in ${helplanguages[*]}; do
 					helpPackage="$helpStart${element}.tar.gz"
-					wget -c "$path$helpPackage"
+					[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
 				done
 			else
 				helpPackage="${helpStart}en-US.tar.gz"
-				wget -c "$path$helpPackage"
+				[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
 			fi
 		fi
 	fi
@@ -377,7 +377,7 @@ rm ./"$BINARY"
 find ../../opt -name soffice -path "*program*" -exec ln -s \{\} ./"$BINARY" \;
 cd ../../
 
-wget -c https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-$appimageArch -O AppRun
+[ ! -f AppRun ] && wget -c https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-$appimageArch -O AppRun
 chmod a+x AppRun
 
 cd ..
