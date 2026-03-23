@@ -29,7 +29,7 @@ jobs:
         languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru standard full"
         for a in still fresh; do
            for b in $languages; do
-              mkdir -p "$a-$b" && cp -r make_libreoffice_appimage "$a-$b"/ && cd "$a-$b" || exit 0
+              mkdir -p "$a" && cp -r make_libreoffice_appimage "$a"/ && cd "$a" || exit 0
               ./make_libreoffice_appimage "$a" x86-64 "$b" N Y Y Y
               cd ..
            done
