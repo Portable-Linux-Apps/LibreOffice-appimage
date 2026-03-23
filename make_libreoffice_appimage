@@ -7,8 +7,6 @@
 # Released under the Mozilla Public License Version 2.0
 # http://www.libreoffice.org/about-us/licenses/
 
-set -x
-
 argv0="${0}"
 argv1="${1}"
 argv2="${2}"
@@ -233,8 +231,6 @@ APP=LibreOffice
 
 libreVersion=$pathVersion
 
-set +e
-
 if [[ $pathVersion == *"fresh"* ]] ; then
 	nrVersion=$(curl "https://www.libreoffice.org/download/download-libreoffice/" | grep -o -e "/stable/.*/" | cut -d "/" -f 3 | head -n 1)
 	path="https://download.documentfoundation.org/libreoffice/stable/${nrVersion}/deb/${pathArch}/"
@@ -311,7 +307,10 @@ if [[ $language == *"standard"* ]] ; then
 	languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru"
 	for l in $languages; do
 		for i in *.tar.gz; do
-			if echo "$i" | grep -q "_$l.tar.gz"; then
+			if echo "$i" | grep -q "langpack_$l.tar.gz"; then
+				tar xfvz "$i"
+			fi
+			if [ "$optHelp" != "N" ] && echo "$i" | grep -q "helppack_$l.tar.gz"; then
 				tar xfvz "$i"
 			fi
 		done
@@ -322,7 +321,10 @@ elif [[ $language == *"full"* ]] ; then
 	done
 else
 	for i in *.tar.gz; do
-		if echo "$i" | grep -q "\_$language.tar.gz"; then
+		if echo "$i" | grep -q "langpack_$language.tar.gz"; then
+			tar xfvz "$i"
+		fi
+		if [ "$optHelp" != "N" ] && echo "$i" | grep -q "helppack_$language.tar.gz"; then
 			tar xfvz "$i"
 		fi
 	done
@@ -330,7 +332,21 @@ fi
 
 cd "$APP".AppDir/ || exit 1
 
-find ../ -name "*.deb" -exec dpkg -x \{\} . \;
+find ../*deb/ -name "*.deb" -exec dpkg -x \{\} . \;
+
+if [[ $language == *"standard"* ]] ; then
+	languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru"
+	for l in $languages; do
+		find ../*deb_langpack_"$l"/ -name "*.deb" -exec dpkg -x \{\} . \;
+		[ "$optHelp" != "N" ] && find ../*deb_helppack_"$l"/ -name "*.deb" -exec dpkg -x \{\} . \;
+	done
+elif [[ $language == *"full"* ]] ; then
+	find ../*deb_langpack_*/ -name "*.deb" -exec dpkg -x \{\} . \;
+	[ "$optHelp" != "N" ] && find ../*deb_helppack_*/ -name "*.deb" -exec dpkg -x \{\} . \;
+else
+	find ../*deb_langpack_"$language"/ -name "*.deb" -exec dpkg -x \{\} . \;
+	[ "$optHelp" != "N" ] && find ../*deb_helppack_"$language"/ -name "*.deb" -exec dpkg -x \{\} . \;
+fi
 
 if [[ $optPortable != "N" ]] ; then
 	 find . -type f -iname "bootstraprc" -exec sed -i "s|^UserInstallation=.*|UserInstallation=\$SYSUSERCONFIG/libreoffice/$nrVersion|g" {} +
@@ -354,8 +370,6 @@ chmod a+x AppRun
 
 cd .. || exit 1
 
-set +x
-
 if [[ $optHelp != "N" ]] ; then
 	variant="$language.help"
 else
@@ -367,9 +381,7 @@ FILENAME="LibreOffice-$pathVersion-$nrVersion-$variant-x86_64.AppImage "
 
 ARCH=x86_64 appimagetool -u "$UPINFO" ./$APP.AppDir/ "$FILENAME"
 
-rm -Rf LibreOffice*langpack*/* ./"$APP".AppDir/*
-
-set -x
+rm -Rf ./"$APP".AppDir/*
 
 if [[ $optSignature == "Y" ]] ; then
 	for i in $(find . -name "*.AppImage*" -print;); do gpg2 -b --batch --armor --passphrase "$gpgPass" "${i}"; done || true
