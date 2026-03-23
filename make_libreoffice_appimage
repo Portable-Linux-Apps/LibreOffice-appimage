@@ -243,24 +243,10 @@ elif [[ $pathVersion == *"still"* ]] ; then
 	nrVersion=$(curl "https://www.libreoffice.org/download/download-libreoffice/" | grep -o -e "/stable/.*/" | cut -d "/" -f 3 | head -n 3 | tail -n 1)
 	path="https://download.documentfoundation.org/libreoffice/stable/${nrVersion}/deb/${pathArch}/"
 	package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
-elif [[ $pathVersion == *"daily"* ]] ; then
-	path="https://dev-builds.libreoffice.org/daily/master/"
-	package=$(filtermasters)
-	# construct a string for the appimage file name
-	# that looks like 7.3.0.0.alpha1_2021-10-31
-	[[ $package =~ .+LibreOfficeDev_(.+)_Linux_x86-64_deb\.tar\.gz ]] && tmpVersion="${BASH_REMATCH[1]}"
-	[[ $package =~ [0-9]{4}-[0-9]{2}-[0-9]{2} ]] && tmpDate="${BASH_REMATCH[0]}"
-	nrVersion=$tmpVersion"_"$tmpDate
 else
-	if [[ $pathVersion == "3."* ]] ; then
-		nrVersion=$libreVersion
-		path="https://downloadarchive.documentfoundation.org/libreoffice/old/$pathVersion/deb/${pathArch}/"
-		package="LibO_${nrVersion}_Linux_${arch}_install-deb_en-US.tar.gz"
-	else
-		nrVersion=$libreVersion
-		path="https://downloadarchive.documentfoundation.org/libreoffice/old/${nrVersion}/deb/${pathArch}/"
-		package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
-	fi
+	nrVersion=$libreVersion
+	path="https://downloadarchive.documentfoundation.org/libreoffice/old/${nrVersion}/deb/${pathArch}/"
+	package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
 fi
 
 LibODownloadLink=$path$package
@@ -285,77 +271,69 @@ cd ./$APP || exit
 [ ! -f "$package" ] && wget -c "$LibODownloadLink"
 
 if [[ $language != "N" ]] ; then
-	if [[ $pathVersion == *"daily"* ]] ; then
-		langStart="${package%.tar.gz}_langpack_"
-	else
-		langStart="LibreOffice_${nrVersion}_Linux_${arch}_deb_langpack_"
-	fi
+	langStart="LibreOffice_${nrVersion}_Linux_${arch}_deb_langpack_"
 	if [[ $language == *"standard"* || $language == *"full"* ]] ; then
 		for element in ${languages[*]}; do
 			langPackage="$langStart$element.tar.gz"
 			[ ! -f "$langPackage" ] && wget -c "$path$langPackage"
 		done
 	else
-		if [[ $pathVersion == "3."* ]] ; then
-			for element in ${languages[*]}; do
-				langPackage="LibO_${nrVersion}_Linux_${arch}_langpack-deb_${element}.tar.gz"
-				[ ! -f "$langPackage" ] && wget -c "$path$langPackage"
-			done
-		else
-			for element in ${languages[*]}; do
-				langPackage="$langStart${element}.tar.gz"
-				[ ! -f "$langPackage" ] && wget -c "$path$langPackage"
-			done
-		fi
+		for element in ${languages[*]}; do
+			langPackage="$langStart${element}.tar.gz"
+			[ ! -f "$langPackage" ] && wget -c "$path$langPackage"
+		done
 	fi
 fi
 
 if [[ $optHelp != "N" ]] ; then
-	if [[ $pathVersion == *"daily"* ]] ; then
-		helpStart="${package%.tar.gz}_helppack_"
-	else
-		helpStart="LibreOffice_${nrVersion}_Linux_${arch}_deb_helppack_"
-	fi
+	helpStart="LibreOffice_${nrVersion}_Linux_${arch}_deb_helppack_"
 	if [[ $language == *"standard"* || $language == *"full"* ]] ; then
 		 for element in ${helplanguages[*]}; do
 			helpPackage="$helpStart$element.tar.gz"
 			[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
 		 done
 	else
-		if [[ $pathVersion == "3."* ]] ; then
-			if [[ "${#helplanguages[@]}" != "0" ]] ; then
-				for element in ${helplanguages[*]}; do
-					helpPackage="LibO_${nrVersion}_Linux_${arch}_helppack-deb_${element}.tar.gz"
-					[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
-				done
-			else
-				helpPackage="LibO_${nrVersion}_Linux_${arch}_helppack-deb_en-US.tar.gz"
+		if [[ "${#helplanguages[@]}" != "0" ]] ; then
+			for element in ${helplanguages[*]}; do
+				helpPackage="$helpStart${element}.tar.gz"
 				[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
-			fi
+			done
 		else
-			if [[ "${#helplanguages[@]}" != "0" ]] ; then
-				for element in ${helplanguages[*]}; do
-					helpPackage="$helpStart${element}.tar.gz"
-					[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
-				done
-			else
-				helpPackage="${helpStart}en-US.tar.gz"
-				[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
-			fi
+			helpPackage="${helpStart}en-US.tar.gz"
+			[ ! -f "$helpPackage" ] && wget -c "$path$helpPackage"
 		fi
 	fi
 fi
 
-for i in *.tar.gz; do tar xfvz "$i"; done
+tar xfvz "$package"
 
-cd $APP.AppDir/ || exit
+if [[ $language == *"standard"* ]] ; then
+	languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru"
+	for l in $languages; do
+		for i in *.tar.gz; do
+			if echo "$i" | grep -q "_$l.tar.gz"; then
+				tar xfvz "$i"
+			fi
+		done
+	done
+elif [[ $language == *"full"* ]] ; then
+	for i in *.tar.gz; do
+		tar xfvz "$i"
+	done
+else
+	for i in *.tar.gz; do
+		if echo "$i" | grep -q "\_$language.tar.gz"; then
+			tar xfvz "$i"
+		fi
+	done
+fi
+
+cd "$APP".AppDir/ || exit 1
 
 find ../ -name "*.deb" -exec dpkg -x \{\} . \;
 
 if [[ $optPortable != "N" ]] ; then
-
 	 find . -type f -iname "bootstraprc" -exec sed -i "s|^UserInstallation=.*|UserInstallation=\$SYSUSERCONFIG/libreoffice/$nrVersion|g" {} +
-
 fi
 
 find . -name startcenter.desktop -exec cp \{\} . \;
@@ -366,16 +344,15 @@ find . -name "*startcenter.png" -path "*hicolor*48x48*" -exec cp \{\} . \;
 
 BINARY=$(cat *.desktop | grep "Exec=" | head -n 1 | cut -d "=" -f 2 | cut -d " " -f 1)
 
-mkdir -p usr/bin/
-cd usr/bin/ || exit
+mkdir -p usr/bin/ && cd usr/bin/ || exit 1
 rm ./"$BINARY"
 find ../../opt -name soffice -path "*program*" -exec ln -s \{\} ./"$BINARY" \;
-cd ../../
+cd ../../ || exit 1
 
 [ ! -f AppRun ] && wget -c https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-$appimageArch -O AppRun
 chmod a+x AppRun
 
-cd ..
+cd .. || exit 1
 
 set +x
 
@@ -389,6 +366,8 @@ UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|LibreOffice-appimage|continuo
 FILENAME="LibreOffice-$pathVersion-$nrVersion-$variant-x86_64.AppImage "
 
 ARCH=x86_64 appimagetool -u "$UPINFO" ./$APP.AppDir/ "$FILENAME"
+
+rm -Rf LibreOffice*langpack*/* ./"$APP".AppDir/*
 
 set -x
 
