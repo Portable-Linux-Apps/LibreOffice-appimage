@@ -29,6 +29,7 @@ jobs:
         languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru standard full"
         for l in $languages; do
           ./make_libreoffice_appimage still x86-64 "$l" N Y Y Y
+          ./make_libreoffice_appimage still x86-64 "$l" Y Y Y Y
         done
         mkdir -p dist
         find . -type d -name out
