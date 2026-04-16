@@ -232,12 +232,14 @@ APP=LibreOffice
 libreVersion=$pathVersion
 
 if [[ $pathVersion == *"fresh"* ]] ; then
-	nrVersion=$(curl "https://www.libreoffice.org/download/download-libreoffice/" | grep -o -e "/stable/.*/" | cut -d "/" -f 3 | head -n 1)
-	path="https://download.documentfoundation.org/libreoffice/stable/${nrVersion}/deb/${pathArch}/"
+	nrVersion_small=$(curl -Ls "https://download.documentfoundation.org/libreoffice/testing/" | grep -Eo "href.*[0-9]/" | tr '"></ ' '\n' | grep "^[0-9].*[0-9]$" | tail -1)
+	path="https://download.documentfoundation.org/libreoffice/testing/${nrVersion_small}/deb/${pathArch}/"
+	nrVersion=$(curl -Ls "$path" | tr '">< ' '\n' | grep "_deb.tar.gz" | sort --version-sort | tail -1 | tr '_' '\n' | grep "^[0-9].*[-0-9]$")
 	package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
 elif [[ $pathVersion == *"still"* ]] ; then
-	nrVersion=$(curl "https://www.libreoffice.org/download/download-libreoffice/" | grep -o -e "/stable/.*/" | cut -d "/" -f 3 | head -n 3 | tail -n 1)
-	path="https://download.documentfoundation.org/libreoffice/stable/${nrVersion}/deb/${pathArch}/"
+	nrVersion_small=$(curl -Ls "https://download.documentfoundation.org/libreoffice/stable/" | grep -Eo "href.*[0-9]/" | tr '"></ ' '\n' | grep "^[0-9].*[0-9]$" | tail -1)
+	path="https://download.documentfoundation.org/libreoffice/stable/${nrVersion_small}/deb/${pathArch}/"
+	nrVersion=$(curl -Ls "$path" | tr '">< ' '\n' | grep "_deb.tar.gz" | sort --version-sort | tail -1 | tr '_' '\n' | grep "^[0-9].*[-0-9]$")
 	package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
 else
 	nrVersion=$libreVersion
@@ -384,9 +386,9 @@ ARCH=x86_64 appimagetool -u "$UPINFO" ./$APP.AppDir/ "$FILENAME"
 
 rm -Rf ./"$APP".AppDir/*
 
-if [[ $optSignature == "Y" ]] ; then
-	for i in $(find . -name "*.AppImage*" -print;); do gpg2 -b --batch --armor --passphrase "$gpgPass" "${i}"; done || true
-fi
+#if [[ $optSignature == "Y" ]] ; then
+#	for i in $(find . -name "*.AppImage*" -print;); do gpg2 -b --batch --armor --passphrase "$gpgPass" "${i}"; done || true
+#fi
 
 mkdir -p ../out/ || true
 mv *.AppImage* ../out/
