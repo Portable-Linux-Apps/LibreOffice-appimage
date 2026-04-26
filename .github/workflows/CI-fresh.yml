@@ -8,76 +8,303 @@ on:
     - cron: "0 18 * * 0"
   workflow_dispatch:
 
+env:
+  APPIMAGETOOL_NAME: appimagetool-x86_64.AppImage
+
 jobs:
   build:
+    permissions:
+      contents: write
+    name: ${{ matrix.flag }} ${{ matrix.language }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        include:
+          - language: en-GB
+            flag: "🇬🇧"
+          - language: it
+            flag: "🇮🇹"
+          - language: ar
+            flag: "🇸🇦"
+          - language: zh-CN
+            flag: "🇨🇳"
+          - language: zh-TW
+            flag: "🇹🇼"
+          - language: fr
+            flag: "🇫🇷"
+          - language: de
+            flag: "🇩🇪"
+          - language: ja
+            flag: "🇯🇵"
+          - language: ko
+            flag: "🇰🇷"
+          - language: pt
+            flag: "🇵🇹"
+          - language: pt-BR
+            flag: "🇧🇷"
+          - language: es
+            flag: "🇪🇸"
+          - language: ru
+            flag: "🇷🇺"
+          - language: af
+            flag: "🇿🇦"
+          - language: am
+            flag: "🇪🇹"
+          - language: as
+            flag: "🇮🇳"
+          - language: ast
+            flag: "🇪🇸"
+          - language: be
+            flag: "🇧🇾"
+          - language: bg
+            flag: "🇧🇬"
+          - language: bn-IN
+            flag: "🇮🇳"
+          - language: bn
+            flag: "🇧🇩"
+          - language: bo
+            flag: "🇨🇳"
+          - language: br
+            flag: "🇫🇷"
+          - language: brx
+            flag: "🇮🇳"
+          - language: bs
+            flag: "🇧🇦"
+          - language: ca-valencia
+            flag: "🇪🇸"
+          - language: ca
+            flag: "🇪🇸"
+          - language: cs
+            flag: "🇨🇿"
+          - language: cy
+            flag: "🇬🇧"
+          - language: da
+            flag: "🇩🇰"
+          - language: dgo
+            flag: "🇮🇳"
+          - language: dz
+            flag: "🇧🇹"
+          - language: el
+            flag: "🇬🇷"
+          - language: en-ZA
+            flag: "🇿🇦"
+          - language: eo
+            flag: "🌍"
+          - language: et
+            flag: "🇪🇪"
+          - language: eu
+            flag: "🇪🇸"
+          - language: fa
+            flag: "🇮🇷"
+          - language: fi
+            flag: "🇫🇮"
+          - language: ga
+            flag: "🇮🇪"
+          - language: gd
+            flag: "🇬🇧"
+          - language: gl
+            flag: "🇪🇸"
+          - language: gu
+            flag: "🇮🇳"
+          - language: gug
+            flag: "🇵🇾"
+          - language: he
+            flag: "🇮🇱"
+          - language: hi
+            flag: "🇮🇳"
+          - language: hr
+            flag: "🇭🇷"
+          - language: hsb
+            flag: "🇩🇪"
+          - language: hu
+            flag: "🇭🇺"
+          - language: id
+            flag: "🇮🇩"
+          - language: is
+            flag: "🇮🇸"
+          - language: ka
+            flag: "🇬🇪"
+          - language: kk
+            flag: "🇰🇿"
+          - language: km
+            flag: "🇰🇭"
+          - language: kmr
+            flag: "🇹🇷"
+          - language: kn
+            flag: "🇮🇳"
+          - language: kok
+            flag: "🇮🇳"
+          - language: ks
+            flag: "🇮🇳"
+          - language: lb
+            flag: "🇱🇺"
+          - language: lo
+            flag: "🇱🇦"
+          - language: lt
+            flag: "🇱🇹"
+          - language: lv
+            flag: "🇱🇻"
+          - language: mai
+            flag: "🇮🇳"
+          - language: mk
+            flag: "🇲🇰"
+          - language: ml
+            flag: "🇮🇳"
+          - language: mn
+            flag: "🇲🇳"
+          - language: mni
+            flag: "🇮🇳"
+          - language: mr
+            flag: "🇮🇳"
+          - language: my
+            flag: "🇲🇲"
+          - language: nb
+            flag: "🇳🇴"
+          - language: ne
+            flag: "🇳🇵"
+          - language: nl
+            flag: "🇳🇱"
+          - language: nn
+            flag: "🇳🇴"
+          - language: nr
+            flag: "🇿🇦"
+          - language: nso
+            flag: "🇿🇦"
+          - language: oc
+            flag: "🇫🇷"
+          - language: om
+            flag: "🇪🇹"
+          - language: or
+            flag: "🇮🇳"
+          - language: pa-IN
+            flag: "🇮🇳"
+          - language: pl
+            flag: "🇵🇱"
+          - language: qtz
+            flag: "🇦🇺"
+          - language: ro
+            flag: "🇷🇴"
+          - language: rw
+            flag: "🇷🇼"
+          - language: sa-IN
+            flag: "🇮🇳"
+          - language: sat
+            flag: "🇮🇳"
+          - language: sd
+            flag: "🇵🇰"
+          - language: si
+            flag: "🇱🇰"
+          - language: sid
+            flag: "🇪🇹"
+          - language: sk
+            flag: "🇸🇰"
+          - language: sl
+            flag: "🇸🇮"
+          - language: sq
+            flag: "🇦🇱"
+          - language: sr-Latn
+            flag: "🇷🇸"
+          - language: sr
+            flag: "🇷🇸"
+          - language: ss
+            flag: "🇸🇿"
+          - language: st
+            flag: "🇿🇦"
+          - language: sv
+            flag: "🇸🇪"
+          - language: sw-TZ
+            flag: "🇹🇿"
+          - language: ta
+            flag: "🇮🇳"
+          - language: te
+            flag: "🇮🇳"
+          - language: tg
+            flag: "🇹🇯"
+          - language: th
+            flag: "🇹🇭"
+          - language: tn
+            flag: "🇧🇼"
+          - language: tr
+            flag: "🇹🇷"
+          - language: ts
+            flag: "🇿🇦"
+          - language: tt
+            flag: "🇷🇺"
+          - language: ug
+            flag: "🇨🇳"
+          - language: uk
+            flag: "🇺🇦"
+          - language: uz
+            flag: "🇺🇿"
+          - language: ve
+            flag: "🇿🇦"
+          - language: vec
+            flag: "🇮🇹"
+          - language: vi
+            flag: "🇻🇳"
+          - language: xh
+            flag: "🇿🇦"
+          - language: zu
+            flag: "🇿🇦"
+          - language: standard
+            flag: "🌐"
+          - language: full
+            flag: "🌍"
+
     steps:
     - uses: actions/checkout@v6
 
-    - name: build
-      if: always()
+    - name: Build and rename AppImages
       run: |
-        sudo apt update && sudo apt install desktop-file-utils
+        sudo apt update && sudo apt install -y desktop-file-utils
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-        URL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
-        wget -c "$URL" -O appimagetool && chmod a+x ./appimagetool
-        export PATH="$PWD":"${PATH}"
-        
+        URL="https://github.com/AppImage/appimagetool/releases/download/continuous/${{ env.APPIMAGETOOL_NAME }}"
+        wget -c "$URL" -O appimagetool \
+         --tries=3 \
+         --timeout=30 \
+         --waitretry=5 \
+         --retry-connrefused \
+         || exit 1
+        chmod a+x appimagetool
+
+        export PATH="$PWD:$PATH"
+
         chmod a+x ./make_libreoffice_appimage
-        languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru standard full"
-        for l in $languages; do
-          ./make_libreoffice_appimage fresh x86-64 "$l" N Y Y Y
-          ./make_libreoffice_appimage fresh x86-64 "$l" Y Y Y Y
-        done
+
+        # Build both N and Y variants
+        ./make_libreoffice_appimage fresh x86-64 "${{ matrix.language }}" N Y Y Y
+        ./make_libreoffice_appimage fresh x86-64 "${{ matrix.language }}" Y Y Y Y
+
+        # Rename and move to dist/
         mkdir -p dist
-        find . -type d -name out
-        mv ./*/*AppImage* dist/
+        shopt -s nullglob
+
+        for f in ./*/*AppImage*; do
+          base=$(basename "$f")
+          mv "$f" "dist/LibreOffice-${{ matrix.language }}-${base}"
+        done
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4.4.0
+      uses: actions/upload-artifact@v7
       with:
-        name: AppImage
+        name: AppImage-${{ matrix.language }}
         path: 'dist'
-        
-  release:
-      needs: [build]
-      permissions: write-all
-      runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/download-artifact@v4.1.8
-          with:
-            name: AppImage
+    - name: Release (append to single release)
+      run: |
+        TAG="continuous-fresh"
+        NAME="LibreOffice FRESH"
 
-        # Snapshot Release
-        - name: get date
-          run: |
-            SNAPSHOT_TAG="$(date --utc +'%Y%m%d-%H%M%S')"
-            echo SNAPSHOT_TAG="${SNAPSHOT_TAG}" >> "${GITHUB_ENV}"
-          continue-on-error: false
-        - name: create snapshot
-          uses: softprops/action-gh-release@v2
-          with:
-            name: "Snapshot FRESH ${{ env.SNAPSHOT_TAG}}"
-            tag_name: "${{ env.SNAPSHOT_TAG}}"
-            prerelease: false
-            draft: false
-            generate_release_notes: false
-            make_latest: false
-            files: |
-              *.AppImage*
-          continue-on-error: false
+        # Quickest job can create tag
+        gh release create "$TAG" \
+          --title "$NAME" \
+          --notes "" \
+          --latest=false 2>/dev/null || true
 
-        # Continuous release
-        - name: release
-          uses: marvinpinto/action-automatic-releases@latest
-          with:
-            title: LibreOffice FRESH
-            automatic_release_tag: continuous-fresh
-            prerelease: false
-            draft: false
-            files: |
-              *.AppImage*
-            repo_token: ${{ secrets.GITHUB_TOKEN }}
+        gh release upload "$TAG" dist/*.AppImage* --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
