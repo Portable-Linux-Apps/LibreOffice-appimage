@@ -235,17 +235,16 @@ if [[ $pathVersion == *"fresh"* ]] ; then
 	nrVersion_small=$(curl -Ls "https://download.documentfoundation.org/libreoffice/testing/" | grep -Eo "href.*[0-9]/" | tr '"></ ' '\n' | grep "^[0-9].*[0-9]$" | tail -1)
 	path="https://download.documentfoundation.org/libreoffice/testing/${nrVersion_small}/deb/${pathArch}/"
 	nrVersion=$(curl -Ls "$path" | tr '">< ' '\n' | grep "_deb.tar.gz" | sort --version-sort | tail -1 | tr '_' '\n' | grep "^[0-9].*[-0-9]$")
-	package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
 elif [[ $pathVersion == *"still"* ]] ; then
 	nrVersion_small=$(curl -Ls "https://download.documentfoundation.org/libreoffice/stable/" | grep -Eo "href.*[0-9]/" | tr '"></ ' '\n' | grep "^[0-9].*[0-9]$" | tail -1)
 	path="https://download.documentfoundation.org/libreoffice/stable/${nrVersion_small}/deb/${pathArch}/"
 	nrVersion=$(curl -Ls "$path" | tr '">< ' '\n' | grep "_deb.tar.gz" | sort --version-sort | tail -1 | tr '_' '\n' | grep "^[0-9].*[-0-9]$")
-	package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
 else
 	nrVersion=$libreVersion
 	path="https://downloadarchive.documentfoundation.org/libreoffice/old/${nrVersion}/deb/${pathArch}/"
-	package="LibreOffice_${nrVersion}_Linux_${arch}_deb.tar.gz"
 fi
+LibSuffix=$(curl -Ls "$path"  | tr '">< ' '\n' | grep "${nrVersion}_Linux_${arch}_deb.tar.gz$" | head -1 | tr '_' '\n' | head -1)
+package="${LibSuffix}_${nrVersion}_Linux_${arch}_deb.tar.gz"
 
 LibODownloadLink=$path$package
 
@@ -269,7 +268,7 @@ cd ./$APP || exit
 [ ! -f "$package" ] && wget -c "$LibODownloadLink"
 
 if [[ $language != "N" ]] ; then
-	langStart="LibreOffice_${nrVersion}_Linux_${arch}_deb_langpack_"
+	langStart="${LibSuffix}_${nrVersion}_Linux_${arch}_deb_langpack_"
 	if [[ $language == *"standard"* || $language == *"full"* ]] ; then
 		for element in ${languages[*]}; do
 			langPackage="$langStart$element.tar.gz"
@@ -284,7 +283,7 @@ if [[ $language != "N" ]] ; then
 fi
 
 if [[ $optHelp != "N" ]] ; then
-	helpStart="LibreOffice_${nrVersion}_Linux_${arch}_deb_helppack_"
+	helpStart="${LibSuffix}_${nrVersion}_Linux_${arch}_deb_helppack_"
 	if [[ $language == *"standard"* || $language == *"full"* ]] ; then
 		 for element in ${helplanguages[*]}; do
 			helpPackage="$helpStart$element.tar.gz"
