@@ -1,4 +1,5 @@
 name: LibreOffice Fresh
+
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
@@ -11,73 +12,112 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      max-parallel: 15
+      matrix:
+        language:
+          - en-GB
+          - it
+          - ar
+          - zh-CN
+          - zh-TW
+          - fr
+          - de
+          - ja
+          - ko
+          - pt
+          - pt-BR
+          - es
+          - ru
+          - standard
+          - full
+
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: build
-      if: always()
-      run: |
-        sudo apt update && sudo apt install desktop-file-utils
-        sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
-        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y desktop-file-utils
 
-        URL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
-        wget -c "$URL" -O appimagetool && chmod a+x ./appimagetool
-        export PATH="$PWD":"${PATH}"
-        
-        chmod a+x ./make_libreoffice_appimage
-        languages="en-GB it ar zh-CN zh-TW fr de ja ko pt pt-BR es ru standard full"
-        for l in $languages; do
-          ./make_libreoffice_appimage fresh x86-64 "$l" N Y Y Y
-          ./make_libreoffice_appimage fresh x86-64 "$l" Y Y Y Y
-        done
-        mkdir -p dist
-        find . -type d -name out
-        mv ./*/*AppImage* dist/
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4.4.0
-      with:
-        name: AppImage
-        path: 'dist'
-        
+      - name: Install appimagetool
+        run: |
+          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool || exit 1
+          chmod +x appimagetool
+          sudo mv appimagetool /usr/local/bin/appimagetool
+
+      - name: Build ${{ matrix.language }}
+        run: |
+          chmod +x ./make_libreoffice_appimage
+
+          ./make_libreoffice_appimage fresh x86-64 "${{ matrix.language }}" N Y Y Y
+          ./make_libreoffice_appimage fresh x86-64 "${{ matrix.language }}" Y Y Y Y
+
+          echo "=== AppImage files found ==="
+          find . -name '*AppImage*' || true
+
+          mkdir -p dist
+
+          find . -type f -name '*AppImage*' -exec mv {} dist/ \; || true
+
+          echo "=== dist contents ==="
+          ls -lah dist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: AppImage-${{ matrix.language }}
+          path: dist
+          if-no-files-found: error
+
   release:
-      needs: [build]
-      permissions: write-all
-      runs-on: ubuntu-latest
+    needs: build
+    runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/download-artifact@v4.1.8
-          with:
-            name: AppImage
+    permissions:
+      contents: write
 
-        # Snapshot Release
-        - name: get date
-          run: |
-            SNAPSHOT_TAG="$(date --utc +'%Y%m%d-%H%M%S')"
-            echo SNAPSHOT_TAG="${SNAPSHOT_TAG}" >> "${GITHUB_ENV}"
-          continue-on-error: false
-        - name: create snapshot
-          uses: softprops/action-gh-release@v2
-          with:
-            name: "Snapshot FRESH ${{ env.SNAPSHOT_TAG}}"
-            tag_name: "${{ env.SNAPSHOT_TAG}}"
-            prerelease: false
-            draft: false
-            generate_release_notes: false
-            make_latest: false
-            files: |
-              *.AppImage*
-          continue-on-error: false
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4.1.8
+        with:
+          path: artifacts
+          merge-multiple: true
 
-        # Continuous release
-        - name: release
-          uses: marvinpinto/action-automatic-releases@latest
-          with:
-            title: LibreOffice FRESH
-            automatic_release_tag: continuous-fresh
-            prerelease: false
-            draft: false
-            files: |
-              *.AppImage*
-            repo_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Show collected files
+        run: |
+          echo "=== Collected artifacts ==="
+          find artifacts -type f
+
+      # Snapshot Release
+      - name: Generate snapshot tag
+        run: |
+          SNAPSHOT_TAG="$(date --utc +'%Y%m%d-%H%M%S')"
+          echo "SNAPSHOT_TAG=$SNAPSHOT_TAG" >> "$GITHUB_ENV"
+
+      - name: Snapshot release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Snapshot FRESH ${{ env.SNAPSHOT_TAG }}
+          tag_name: ${{ env.SNAPSHOT_TAG }}
+          prerelease: false
+          draft: false
+          make_latest: false
+          generate_release_notes: false
+          files: artifacts/**
+
+      # Continuous release
+      - name: Continuous release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: continuous-fresh
+          title: LibreOffice FRESH
+          prerelease: false
+          draft: false
+          files: artifacts/**
