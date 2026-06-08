@@ -19,18 +19,18 @@ jobs:
       matrix:
         language:
           - en-GB
-          - it
           - ar
-          - zh-CN
-          - zh-TW
-          - fr
           - de
+          - es
+          - fr
+          - it
           - ja
           - ko
           - pt
           - pt-BR
-          - es
           - ru
+          - zh-CN
+          - zh-TW
           - standard
           - full
 
